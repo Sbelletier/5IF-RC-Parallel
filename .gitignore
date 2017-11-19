@@ -1,3 +1,7 @@
+#results
+stats_best.txt
+stats_mean.txt
+
 # Prerequisites
 *.d
 
@@ -30,11 +34,13 @@
 *.exe
 *.out
 *.app
+pdc_evol_model
 
 #idea repo
 .idea
 
 #cmake
+pdc_evol_model.cbp
 Makefile
 CMakeCache.txt
 cmake_install.cmake
