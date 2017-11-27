@@ -1,10 +1,15 @@
 #include <iostream>
 #include "src/World.h"
 #include "src/Common.h"
+#include <omp.h>
+
+#define NTHREADS 4
 
 using namespace std;
 
 int main() {
+  printf("Set OpenMp\n");
+  omp_set_num_threads(NTHREADS);
   printf("Init binding matrix\n");
   Common::init_binding_matrix(897685687);
 
