@@ -24,3 +24,26 @@ if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIR})
     target_link_libraries(pdc_evol_model ${ZLIB_LIBRARIES})
 endif(ZLIB_FOUND)
+
+
+
+#
+# LINKING MPI
+#
+set(CMAKE_MODULE_PATH "/home/$USER/.ompi/*;${CMAKE_MODULE_PATH}")
+
+find_package(MPI REQUIRED)
+if(MPI_FOUND)
+	include_directories(${MPI_INCLUDE_PATH})
+    target_link_libraries(pdc_evol_model ${MPI_LIBRARIES})
+endif(MPI_FOUND)
+
+if(MPI_COMPILE_FLAGS)
+  set_target_properties(pdc_evol_model PROPERTIES
+    COMPILE_FLAGS "${CMAKE_CXX_COMPILE_FLAGS}  ${MPI_COMPILE_FLAGS}")
+endif(MPI_COMPILE_FLAGS)
+
+if(MPI_LINK_FLAGS)
+  set_target_properties(pdc_evol_model PROPERTIES
+    LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS}  ${MPI_LINK_FLAGS}")
+endif(MPI_LINK_FLAGS)
