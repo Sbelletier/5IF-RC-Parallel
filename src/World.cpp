@@ -199,13 +199,13 @@ void World::evolution_step() {
       }
     }
   }
+
   #pragma omp parallel for collapse(2)
   for (int i = 0; i < width_; i++) {
     for (int j = 0; j < height_; j++) {
 
       if (grid_cell_[i * width_ + j]->organism_ == nullptr) {
         Organism* org_n = nullptr;
-
         for (int x = i - Common::Duplicate_Neighbors_Offset;
              x <= i + Common::Duplicate_Neighbors_Offset; x++) {
           for (int y = j - Common::Duplicate_Neighbors_Offset;

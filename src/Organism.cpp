@@ -253,10 +253,10 @@ void Organism::init_organism() {
 }
 
 void Organism::compute_protein_concentration() {
-  int rna_id = 0;
-  for (auto it = rna_list_.begin(); it != rna_list_.end(); it++) {
+
+  for (int i = 0; i < rna_list_.size(); i++) {
     float delta_pos = 0, delta_neg = 0;
-    for (auto prot : rna_influence_[rna_id]) {
+    for (auto prot : rna_influence_[i]) {
       if (prot.second > 0)
         delta_pos += prot.second * protein_list_map_[prot.first]->concentration_;
       else
@@ -266,14 +266,13 @@ void Organism::compute_protein_concentration() {
     float delta_pos_pow_n = pow(delta_pos,Common::hill_shape_n);
     float delta_neg_pow_n = pow(delta_neg,Common::hill_shape_n);
 
-    rna_list_[rna_id]->current_concentration_ = rna_list_[rna_id]->concentration_base_
+    rna_list_[i]->current_concentration_ = rna_list_[i]->concentration_base_
                                                 * (Common::hill_shape
                                                    / (delta_neg_pow_n + Common::hill_shape))
-                                                * (1 + ((1 / rna_list_[rna_id]->concentration_base_) - 1)
+                                                * (1 + ((1 / rna_list_[i]->concentration_base_) - 1)
                                                        * (delta_pos_pow_n /
                                                           (delta_pos_pow_n +
                                                            Common::hill_shape)));
-    rna_id++;
   }
 
   std::unordered_map<float,float> delta_concentration;
