@@ -1,6 +1,7 @@
 #include <iostream>
 #include "src/World.h"
 #include "src/Common.h"
+#include <chrono>
 
 using namespace std;
 
@@ -21,7 +22,11 @@ int main() {
     printf("Initialize random population\n");
     world->random_population();
 
+    auto t1 = chrono::high_resolution_clock::now();
     printf("Run evolution\n");
     world->run_evolution();
+    auto t2 = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds> (t2 - t1).count();
+    cout << "Time run evolution : " << duration/1000000.0 << "s" << endl;
   }
 }
