@@ -1,0 +1,43 @@
+time ./pdc_evol_model
+
+
+
+Executions : 
+
+
+===========================
+BASE (0 MPI 0 OPTIMISATION)
+===========================
+Note : Common.h ---> 
+	const static int Number_Degradation_Step = 10;
+	const static int Number_Evolution_Step = 500;
+
+run 1
+real	2m7.339s
+user	2m6.526s
+sys	0m0.224s
+
+run 2
+real	2m6.669s
+user	2m6.340s
+sys	0m0.128s
+
+
+run 3
+real	2m7.915s
+user	2m7.454s
+sys	0m0.260s
+
+
+run 4
+real	2m6.626s
+user	2m6.205s
+sys	0m0.216s
+
+
+run 5
+real	2m6.845s
+user	2m6.253s
+sys	0m0.388s
+
+

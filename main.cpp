@@ -1,10 +1,13 @@
 #include <iostream>
+#include <mpi.h>
 #include "src/World.h"
 #include "src/Common.h"
 
 using namespace std;
 
 int main() {
+	//TODO : Start optimizing
+	MPI_Init(NULL, NULL); MPI_Finalize();
   printf("Init binding matrix\n");
   Common::init_binding_matrix(897685687);
 
