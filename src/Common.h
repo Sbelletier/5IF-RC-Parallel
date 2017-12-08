@@ -7,7 +7,7 @@
 
 
 #include "BP_Protein.h"
-
+extern int nb_prot;
 class Common {
  public:
     const static int DNA_base_length = 500;
@@ -56,7 +56,8 @@ class Common {
     constexpr static double GRADIENT_SCALE = 30;
 
     const static int Number_Degradation_Step = 10;
-    const static int Number_Evolution_Step = 300;
+    const static int Number_Evolution_Step = 400;
+
 };
 
 
