@@ -1,15 +1,15 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 
 #include <mpi.h>
 
 #include "src/World.h"
 #include "src/Common.h"
-<<<<<<< HEAD
 #include "src/MpiSlave.h"
-=======
-#include <chrono>
->>>>>>> origin/master
+
+
+
 
 using namespace std;
 
