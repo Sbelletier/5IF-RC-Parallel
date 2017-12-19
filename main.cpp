@@ -5,7 +5,11 @@
 
 #include "src/World.h"
 #include "src/Common.h"
+<<<<<<< HEAD
 #include "src/MpiSlave.h"
+=======
+#include <chrono>
+>>>>>>> origin/master
 
 using namespace std;
 
@@ -48,6 +52,8 @@ int main() {
 		printf("Initialize environment\n");
 		world->init_environment();
 
+		auto t1 = chrono::high_resolution_clock::now();
+		//
 		bool test = false;
 		if (test) {
 			world->test_mutate();
@@ -58,7 +64,10 @@ int main() {
 			printf("Run evolution\n");
 			world->run_evolution();
 		}
-		
+		//
+		auto t2 = chrono::high_resolution_clock::now();
+		auto duration = chrono::duration_cast<chrono::microseconds> (t2 - t1).count();
+		cout << "Time run evolution : " << duration/1000000.0 << "s" << endl;
 		//kill all remaining processes
 		char msg[MSG_SIZE] = "END";//Note : outside of init, use strcpy( msg, "str")
 		for( int comm_id=1; comm_id<mpi_comm_size; comm_id++){
@@ -70,6 +79,7 @@ int main() {
   {
 		MpiSlave slave( mpi_comm_rank, 0);
 		slave.run();
+
   }
   MPI_Finalize();
   cout << "Processor " << mpi_processor_name << " end of process rank " << mpi_comm_rank
