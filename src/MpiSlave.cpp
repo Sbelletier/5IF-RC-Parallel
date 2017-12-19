@@ -3,7 +3,11 @@
 //
 #include <iostream>
 #include <string>
+#include <map>
+
 #include <mpi.h>
+
+
 
 #include "MpiSlave.h"
 
@@ -109,10 +113,12 @@ int MpiSlave::run(){
 		if(msgString == "END"){
 			run = false;
 		}
-		else if( msgString == "ORGA::CMPT_PRT_CONC/RNA_DELTAS"){
+		else if( msgString == "ORGA::CMPT_PRT_CONC/RNA_DELTAS" ){
 			
 		}
-		
+		else if( msgString == "ORGA::ACT_PUMP" ){
+			
+		}
 		
 	}
 }
@@ -126,3 +132,14 @@ void MpiSlave::compute_protein_concentration_rna_deltas(){
 	
 	
 }
+
+
+void MpiSlave::activate_pump(){
+	//receive organism prot_list_map
+	std::map<float,Protein*> org_protein_list_map();
+	
+	//clear all
+	
+	
+}
+

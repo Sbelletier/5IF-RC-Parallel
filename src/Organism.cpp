@@ -5,7 +5,9 @@
 #include "Organism.h"
 #include "DNA.h"
 #include "Common.h"
+#include "MpiSlave.h"
 
+#include <mpi.h>
 
 void Organism::translate_RNA() {
 
@@ -259,6 +261,80 @@ void Organism::activate_pump() {
     
 	}
     #elseif ACTIVATE_PUMP_MPI_SPLIT_PUMPS
+    //Send order
+    
+	//------- DEFINITION OF CUSTOM MPI DATATYPE
+	MPI_Type_contiguous(MSG_SIZE, MPI_BYTE, &dt_msg);
+	//a message is a string (list of char) closest type is vector of MPI_BYTE
+	MPI_Type_commit(&dt_msg);
+	//------- END OF DEFINITION OF CUSTOM MPI DATATYPE
+	char msg[MSG_SIZE] = "ORGA::ACT_PUMP";//Note : outside of init, use strcpy( msg, "str")
+	MPI_Bcast( &msg, 1, dt_msg, 0, MPI_COMM_WORLD); //we're in master
+	
+    //Send organism prot_list_map
+    MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+    for(auto & prot : protein_list_map_)
+    {
+		MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+		sendProtein( prot.second );
+	}
+    //Send gridcell prot_list_map
+    MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+    for(auto & prot : gridcell_->protein_list_map_)
+    {
+		MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+		sendProtein( prot.second );
+	}
+    //Split PumpList
+    
+    //Send Pumplist
+    
+    //Wait
+    
+    //Aggregate
+    #elsif ACTIVATE_PUMP_MPI_DONT_SPLIT_PUMPS
+    for (auto it = pump_list_.begin(); it != pump_list_.end(); it++) {
+		  
+		  
+		if ((*it)->in_out_) {
+			  //Send organism prot_list_map
+				MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+				for(auto & prot : protein_list_map_)
+				{
+					MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+					sendProtein( prot.second );
+				}
+				//Send gridcell prot_list_map
+				MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+				for(auto & prot : gridcell_->protein_list_map_)
+				{
+					MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+					sendProtein( prot.second );
+				}
+				//
+		  
+		} 
+		else {
+				//Send organism prot_list_map
+				MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+				for(auto & prot : protein_list_map_)
+				{
+					MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+					sendProtein( prot.second );
+				}
+				//Send gridcell prot_list_map
+				MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+				for(auto & prot : gridcell_->protein_list_map_)
+				{
+					MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+					sendProtein( prot.second );
+				}
+
+			  
+		}
+    
+	}
+    
     #endif
     
     

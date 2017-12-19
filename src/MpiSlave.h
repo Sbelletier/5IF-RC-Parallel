@@ -44,6 +44,7 @@ class MpiSlave {
 	protected:
 		void compute_protein_concentration_rna_deltas();
 		
+		void activate_pump();
 		
 		int id_;
 		int masterId_;
