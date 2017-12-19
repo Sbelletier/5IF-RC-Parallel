@@ -8,7 +8,7 @@
 #include "src/Common.h"
 #include "src/MpiSlave.h"
 
-
+#define ACTIVATE_PUMP_NO_MPI
 
 
 using namespace std;
@@ -33,11 +33,11 @@ int main() {
   //------ END OF BASE MPI commands
   
   
-  //------- DEFINITION OF CUSTOM MPI DATATYPES
+  //------- DEFINITION OF CUSTOM MPI DATATYPE
   MPI_Type_contiguous(MSG_SIZE, MPI_BYTE, &dt_msg);
    //a message is a string (list of char) closest type is vector of MPI_BYTE
   MPI_Type_commit(&dt_msg);
- //------- END OF DEFINITION OF CUSTOM MPI DATATYPES
+ //------- END OF DEFINITION OF CUSTOM MPI DATATYPE
   
   
   //Main Process Run All

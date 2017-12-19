@@ -205,33 +205,36 @@ void World::evolution_step() {
         Organism* org_n = nullptr;
 
         for (int x = i - Common::Duplicate_Neighbors_Offset;
-             x <= i + Common::Duplicate_Neighbors_Offset; x++) {
+             x <= i + Common::Duplicate_Neighbors_Offset; x++) {	 
           for (int y = j - Common::Duplicate_Neighbors_Offset;
                y <= j + Common::Duplicate_Neighbors_Offset; y++) {
-            if (x >= 0 && x < width_)
-              if (y >= 0 && y < height_) {
-                if (grid_cell_[x * width_ + y]->organism_ != nullptr) {
-                  if (org_n != nullptr)
-                    org_n = grid_cell_[x * width_ + y]->organism_->fitness_ <
-                          org_n->fitness_ ? grid_cell_[x * width_ +
-                                                       y]->organism_
-                                          : org_n;
-                  else
-                    org_n = grid_cell_[x * width_ + y]->organism_;
-                }
-              }
-          }
+				   
+					if (x >= 0 && x < width_)
+					  if (y >= 0 && y < height_) {
+						  
+								if (grid_cell_[x * width_ + y]->organism_ != nullptr) {
+								  if (org_n == nullptr)
+									org_n = grid_cell_[x * width_ + y]->organism_;
+								  else
+									org_n = grid_cell_[x * width_ + y]->organism_->fitness_ <  org_n->fitness_ ? 
+											grid_cell_[x * width_ + y]->organism_ : org_n;	
+								}
+						
+					  }
+              
+          }  
         }
 
         if (org_n != nullptr) {
           new_mutant_++;
           org_n->dupli_success_++;
           grid_cell_[i * width_ + j]->organism_ = new Organism(new DNA(org_n->dna_));
-          grid_cell_[i * width_ + j]->organism_->gridcell_ = grid_cell_[
-              i * width_ + j];
+          grid_cell_[i * width_ + j]->organism_->gridcell_ = grid_cell_[i * width_ + j];
           grid_cell_[i * width_ + j]->organism_->mutate();
           grid_cell_[i * width_ + j]->organism_->init_organism();
         }
+        
+        
       }
     }
   }

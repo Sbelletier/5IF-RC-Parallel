@@ -6,9 +6,24 @@
 
 #include <mpi.h>
 
-static const int MSG_SIZE=20;
+#include "Protein.h"
+#include "Pump.h"
+
+static const int MSG_SIZE=50;
 
 static MPI_Datatype dt_msg;
+
+/*
+ * Note: Requires delete once over
+ */
+Protein* rcvProtein(int rank_src);
+void sendProtein(Protein* p, int rank_dest, bool broadcast);
+
+/*
+ * Note: Requires delete once over
+ */
+Pump* rcvPump(int rank_src);
+void sendPump(Pump* p, int rank_dest, bool broadcast);
 
 class MpiSlave {
 
@@ -27,6 +42,8 @@ class MpiSlave {
 		int run();
 		
 	protected:
+		void compute_protein_concentration_rna_deltas();
+		
 		
 		int id_;
 		int masterId_;
