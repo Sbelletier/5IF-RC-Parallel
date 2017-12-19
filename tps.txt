@@ -40,4 +40,40 @@ real	2m6.845s
 user	2m6.253s
 sys	0m0.388s
 
+============================
+OPTIS VIANNEY (0 MPI 1 OPTIMISATION)
+============================
+Note : Common.h --->
+	const static int Number_Degradation_Step = 10;
+	const static int Number_Evolution_Step = 500;
 
+run 1
+real	0m26.852s
+user	0m26.440s
+sys	0m0.232s
+	Mesure InPrgm - Time run evolution : 26.437s
+
+
+run 2
+real	0m26.855s
+user	0m26.532s
+sys	0m0.180s
+	Mesure InPrgm - Time run evolution : 26.4721s
+
+run 3
+real	0m27.024s
+user	0m26.480s
+sys	0m0.180s
+	Mesure InPrgm - Time run evolution : 26.6029s
+
+run 4
+real	0m26.733s
+user	0m26.378s
+sys	0m0.208s
+	Mesure InPrgm - Time run evolution : 26.3557s
+
+run 5
+real	0m26.708s
+user	0m26.413s
+sys	0m0.168s
+	Mesure InPrgm - Time run evolution : 26.3577s
