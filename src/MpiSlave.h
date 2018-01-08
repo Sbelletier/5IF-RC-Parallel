@@ -16,13 +16,13 @@ static MPI_Datatype dt_msg;
 /*
  * Note: Requires delete once over
  */
-Protein* rcvProtein(int rank_src);
+Protein* rcvProtein(int rank_src, bool fromBroadcast);
 void sendProtein(Protein* p, int rank_dest, bool broadcast);
 
 /*
  * Note: Requires delete once over
  */
-Pump* rcvPump(int rank_src);
+Pump* rcvPump(int rank_src, bool fromBroadcast);
 void sendPump(Pump* p, int rank_dest, bool broadcast);
 
 class MpiSlave {
