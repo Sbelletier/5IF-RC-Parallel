@@ -268,14 +268,10 @@ void Organism::activate_pump() {
     /************************************************
 	*  STEP 1.A : Send order
 	********************************************** */
-	//------- DEFINITION OF CUSTOM MPI DATATYPE
-	MPI_Datatype dt_msg;
-	MPI_Type_contiguous(MSG_SIZE, MPI_BYTE, &dt_msg);
-	//a message is a string (list of char) closest type is vector of MPI_BYTE
-	MPI_Type_commit(&dt_msg);
-	//------- END OF DEFINITION OF CUSTOM MPI DATATYPE
 	char msg[MSG_SIZE] = "ORGA::ACT_PUMP";//Note : outside of init, use strcpy( msg, "str")
-	MPI_Bcast( &msg, 1, dt_msg, 0, MPI_COMM_WORLD); //we're in master
+	for( int comm_id=1; comm_id<=nb_slave; comm_id++){
+			MPI_Send( &msg,  MSG_SIZE, MPI_CHAR, comm_id, 0, MPI_COMM_WORLD); 
+	}
 	
     /************************************************
 	*  STEP 1.B : Send organism protein_list_map

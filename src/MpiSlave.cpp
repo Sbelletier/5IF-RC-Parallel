@@ -124,8 +124,8 @@ int MpiSlave::run(){
 	bool run = true;
 	
 	while( run ){
-		char* msg;
-		MPI_Recv(&msg, 1, dt_msg, masterId_, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		char msg[MSG_SIZE];
+		MPI_Recv(&msg, MSG_SIZE, MPI_CHAR, masterId_, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		//convert to String for easier manipulation
 		string msgString = msg;
 		
@@ -138,7 +138,6 @@ int MpiSlave::run(){
 		else if( msgString == "ORGA::ACT_PUMP" ){
 			activate_pump();
 		}
-		
 	}
 }
 
@@ -162,12 +161,12 @@ void MpiSlave::activate_pump(){
 	std::map<float,Protein*> orga_protein_list_map = std::map<float,Protein*>();
 	int count;
 	//receive count
-	MPI_Recv(&count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	MPI_Bcast(&count, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	//receiving loop
 	for(int i=0; i < count; i++){
 		//receive attributes
 		float key;
-		MPI_Recv(&key, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		MPI_Bcast(&key, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 		Protein* prot = rcvProtein(0, true);
 		//insert in map
 		orga_protein_list_map.insert( std::pair<float,Protein*>(key, prot) );
@@ -178,12 +177,12 @@ void MpiSlave::activate_pump(){
 	// initialize
 	std::map<float,Protein*> grid_protein_list_map = std::map<float,Protein*>();
 	//receive count (initialized above)
-	MPI_Recv(&count, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	MPI_Bcast(&count, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	//receiving loop
 	for(int i=0; i < count; i++){
 		//receive attributes
 		float key;
-		MPI_Recv(&key, 1, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		MPI_Bcast(&key, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 		Protein* prot = rcvProtein(0, true);
 		//insert in map
 		grid_protein_list_map.insert( std::pair<float,Protein*>(key, prot) );
@@ -305,6 +304,8 @@ void MpiSlave::activate_pump(){
 			  
 		}
 		
+		delete (*pump_it);
+		
 	}
 	MPI_Barrier( MPI_COMM_WORLD );
 	
@@ -357,12 +358,6 @@ void MpiSlave::activate_pump(){
 	/************************************************
 	*  STEP 4 : Clear memory
 	********************************************** */
-	//clear pumps
-	while( !(slave_pumps.empty()) ){ 
-		Pump* p = slave_pumps.back();
-		delete p;
-		slave_pumps.pop_back();
-	}
 	//clear prots maps
 	for (auto & prot : orga_protein_list_map) {
 		delete prot.second;

@@ -8,8 +8,8 @@
 #include "src/Common.h"
 #include "src/MpiSlave.h"
 
-//#define ACTIVATE_PUMP_NO_MPI
-#define ACTIVATE_PUMP_MPI_SPLIT_PUMPS
+#define ACTIVATE_PUMP_NO_MPI
+//#define ACTIVATE_PUMP_MPI_SPLIT_PUMPS
 
 using namespace std;
 
@@ -76,7 +76,7 @@ int main() {
 		//kill all remaining processes
 		char msg[MSG_SIZE] = "END";//Note : outside of init, use strcpy( msg, "str")
 		for( int comm_id=1; comm_id<mpi_comm_size; comm_id++){
-			MPI_Send( &msg, 1, dt_msg, comm_id, 0, MPI_COMM_WORLD); 
+			MPI_Send( &msg, MSG_SIZE, MPI_CHAR, comm_id, 0, MPI_COMM_WORLD); 
 		}
   }
   //Subprocesses obey
