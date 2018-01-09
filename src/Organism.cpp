@@ -1,14 +1,18 @@
 //
 // Created by arrouan on 28/09/16.
 //
+#include <iostream>
 
+#include "MpiSlave.h"
 #include "Organism.h"
 #include "DNA.h"
 #include "Common.h"
-#include "MpiSlave.h"
 
 #include <mpi.h>
 
+using namespace std;
+
+void sendProtein(Protein* p, int rank_dest, bool broadcast);
 void Organism::translate_RNA() {
 
   RNA* current_rna = nullptr;
@@ -203,9 +207,8 @@ void Organism::compute_next_step() {
 
 void Organism::activate_pump() {
 	
-  //Question : Optimise inside -----> conserve order of pump
-  // Optimise for ---> lose order of pump
-	#ifdef ACTIVATE_PUMP_NO_MPI
+
+	/*
 	for (auto it = pump_list_.begin(); it != pump_list_.end(); it++) {
 		  
 		  
@@ -260,7 +263,8 @@ void Organism::activate_pump() {
 		}
     
 	}
-    #elseif ACTIVATE_PUMP_MPI_SPLIT_PUMPS
+    */
+    //std::cout << "activate pump" << std::endl;
 	//check for number of available slaves
 	int nb_slave; MPI_Comm_size(MPI_COMM_WORLD, &nb_slave); nb_slave--; //nb_slave = nb_proc - 1;
 	int continue_int = 1;
@@ -272,43 +276,52 @@ void Organism::activate_pump() {
 	for( int comm_id=1; comm_id<=nb_slave; comm_id++){
 			MPI_Send( &msg,  MSG_SIZE, MPI_CHAR, comm_id, 0, MPI_COMM_WORLD); 
 	}
-	
+	//cout << "main sent order" << endl;
     /************************************************
 	*  STEP 1.B : Send organism protein_list_map
 	********************************************** */
-    MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+	int count = protein_list_map_.size();
+    MPI_Bcast( &count , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
     for(auto & prot : protein_list_map_)
     {
-		MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
-		sendProtein( prot.second, 1, true);//Broadcast
+		MPI_Bcast( (void*) &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+		sendProtein( prot.second, 0, true);//Broadcast
 	}
+	MPI_Barrier(MPI_COMM_WORLD);
+	//cout << "main sent protein_list_map" << endl;
     /************************************************
-	*  STEP 1.C : Receive gridcelle protein_list_map
+	*  STEP 1.C : Send gridcell protein_list_map
 	********************************************** */
-    MPI_Bcast( &( protein_list_map_.size() ) , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
+	count = gridcell_->protein_list_map_.size();
+    MPI_Bcast( &count , 1, MPI_INT, 0, MPI_COMM_WORLD);//length of input
     for(auto & prot : gridcell_->protein_list_map_)
     {
-		MPI_Bcast( &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
-		sendProtein( prot.second, 1, true);//Broadcast
+		MPI_Bcast( (void*) &(prot.first), 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+		sendProtein( prot.second, 0, true);//Broadcast
 	}
+	MPI_Barrier(MPI_COMM_WORLD);
+	//cout << "main sent gridcell protein_list_map" << endl;
     /************************************************
 	*  STEP 1.D : Send pumps
 	********************************************** */
     //automatically split pump between slaves (TODO : Replace by scatter)
     for( int i=0; i < pump_list_.size() ;i++)
     {
-		int comm_id = (i % nb_slave) + 1 //offset to avoid sending to master
+		int comm_id = (i % nb_slave) + 1 ;//offset to avoid sending to master
 		MPI_Send( &continue_int, 1, MPI_INT, comm_id, 0, MPI_COMM_WORLD);
 		sendPump( pump_list_[i], comm_id, false);
 	}
+	//cout << "main sent pumps" << endl;
 	//communicate that sending is done
 	for(int i=0; i<nb_slave; i++){
 		MPI_Send( &stop_int, 1, MPI_INT, i+1, 0, MPI_COMM_WORLD);
 	}
-    
+
+    //cout << "main concluded pump-sending" << endl;
     //Wait
+    //cout << "main reached Barrier" << endl;
     MPI_Barrier( MPI_COMM_WORLD );
-    
+    //cout << "main passed Barrier" << endl;
     /************************************************
 	*  STEP 2.A : Define delta type for reception
 	********************************************** */
@@ -323,19 +336,20 @@ void Organism::activate_pump() {
 	********************************************** */
 	bool read = true;
 	while( read ){
+		//cout << " begin main protgather orga loop" << endl;
 		MPI_Bcast(&continue_int, 1, MPI_INT, 0, MPI_COMM_WORLD);//ask for a batch of deltas
 		read = false;
 		//allocate
-		float empty[2] = {-1.0, 0.0} 
-		float* deltas = malloc( 2*(nb_slave+1) * sizeof(float) );
+		float empty[2] = {-1.0, 0.0} ;
+		float* deltas = (float*) malloc( 2*(nb_slave+1) * sizeof(float) );
 		//gather
-		MPI_Gather(&empty, 1, dt_cDelta, deltas, 1, 0, MPI_COMM_WORLD); 
+		MPI_Gather(&empty, 1, dt_cDelta, deltas, 1, dt_cDelta, 0, MPI_COMM_WORLD);
 		//agregate
 		for(int i=1; i<=nb_slave; i++){
 			if( deltas[i*2] > -1.0){
 				read = true;
 				if ( protein_list_map_.find(deltas[i*2])  == protein_list_map_.end() ) {
-					auto itFind = gridcell_.protein_list_map_.find(deltas[i*2]);//If it isn't in organism it must be in gridcell
+					auto itFind = gridcell_->protein_list_map_.find(deltas[i*2]);//If it isn't in organism it must be in gridcell
 					Protein* prot_n = new Protein(itFind->second);
 					prot_n->concentration_ = deltas[(i*2)+1];
 					protein_list_map_[deltas[i*2]] = prot_n;
@@ -357,26 +371,27 @@ void Organism::activate_pump() {
 	********************************************** */
 	read = true;
 	while( read ){
+		//cout << " begin main gridgather orga loop" << endl;
 		MPI_Bcast(&continue_int, 1, MPI_INT, 0, MPI_COMM_WORLD);//ask for a batch of deltas
 		read = false;
 		//allocate
-		float empty[2] = {-1.0, 0.0} 
-		float* deltas = malloc( 2*(nb_slave+1) * sizeof(float) );
+		float empty[2] = {-1.0, 0.0};
+		float* deltas = (float *) malloc( 2*(nb_slave+1) * sizeof(float) );
 		//gather
 		MPI_Gather(&empty, 1, dt_cDelta, deltas, 1, dt_cDelta, 0, MPI_COMM_WORLD); 
 		//agregate
 		for(int i=1; i<=nb_slave; i++){
 			if( deltas[i*2] > -1.0){
 				read = true;
-				if ( gridcell_.protein_list_map_.find(deltas[i*2])  == gridcell_.protein_list_map_.end() ) {
+				if ( gridcell_->protein_list_map_.find(deltas[i*2])  == gridcell_->protein_list_map_.end() ) {
 					auto itFind = protein_list_map_.find(deltas[i*2]);//If it isn't in gridcell it must be in organism
 					Protein* prot_n = new Protein(itFind->second);
 					prot_n->concentration_ = deltas[(i*2)+1];
-					gridcell_.protein_list_map_[deltas[i*2]] = prot_n;
+					gridcell_->protein_list_map_[deltas[i*2]] = prot_n;
 				} 
 				else 
 				{
-					gridcell_.protein_list_map_[deltas[i*2]]->concentration_ += deltas[(i*2)+1];
+					gridcell_->protein_list_map_[deltas[i*2]]->concentration_ += deltas[(i*2)+1];
 				}
 			}
 		}
@@ -384,10 +399,7 @@ void Organism::activate_pump() {
 		free(deltas);
 	}
 	MPI_Bcast(&stop_int, 1, MPI_INT, 0, MPI_COMM_WORLD);//notify that all deltas have been received
-	
-    
-    #endif
-    
+	 
     
     
 }

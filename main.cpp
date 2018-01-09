@@ -8,9 +8,6 @@
 #include "src/Common.h"
 #include "src/MpiSlave.h"
 
-#define ACTIVATE_PUMP_NO_MPI
-//#define ACTIVATE_PUMP_MPI_SPLIT_PUMPS
-
 using namespace std;
 
 int main() {
@@ -31,11 +28,6 @@ int main() {
   cout << "Processor " << mpi_processor_name << " start of process rank " << mpi_comm_rank
 		<< " (" << mpi_comm_size << " processes requested)" << endl;
   //------ END OF BASE MPI commands
-  //if no slave deactivate parallelisation
-  if( mpi_comm_size < 2){
-	  #define ACTIVATE_PUMP_NO_MPI
-	  #undef ACTIVATE_PUMP_MPI_SPLIT_PUMPS
-  }
   
   //------- DEFINITION OF CUSTOM MPI DATATYPE
   MPI_Datatype dt_msg;

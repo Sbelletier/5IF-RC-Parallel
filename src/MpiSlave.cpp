@@ -43,7 +43,7 @@ Protein* rcvProtein(int rank_src, bool fromBroadcast){
  * rank is src if broadcast, dest otherwise
  * 
  */
-void sendProtein(Protein* p, bool broadcast, int rank){
+void sendProtein(Protein* p, int rank , bool broadcast ){
 	if( broadcast ){
 		MPI_Bcast( &(p->type_), 1, MPI_INT, rank, MPI_COMM_WORLD);
 		MPI_Bcast( &(p->binding_pattern_), 1, MPI_FLOAT, rank, MPI_COMM_WORLD);
@@ -90,7 +90,7 @@ Pump* rcvPump(int rank_src, bool fromBroadcast){
  * rank is src if broadcast, dest otherwise
  * 
  */
-void sendPump(Pump* p, bool broadcast, int rank){
+void sendPump(Pump* p, int rank, bool broadcast){
 	if( broadcast ){
 		MPI_Bcast( &(p->in_out_), 1, MPI_INT, rank, MPI_COMM_WORLD);
 		MPI_Bcast( &(p->start_range_), 1, MPI_FLOAT, rank, MPI_COMM_WORLD);
@@ -136,6 +136,7 @@ int MpiSlave::run(){
 			
 		}
 		else if( msgString == "ORGA::ACT_PUMP" ){
+			//cout << msgString << " " << id_ << endl;
 			activate_pump();
 		}
 	}
@@ -171,6 +172,8 @@ void MpiSlave::activate_pump(){
 		//insert in map
 		orga_protein_list_map.insert( std::pair<float,Protein*>(key, prot) );
 	}
+	
+	MPI_Barrier(MPI_COMM_WORLD);
 	/************************************************
 	*  STEP 1.B : Receive gridcell protein_list_map
 	********************************************** */
@@ -178,6 +181,7 @@ void MpiSlave::activate_pump(){
 	std::map<float,Protein*> grid_protein_list_map = std::map<float,Protein*>();
 	//receive count (initialized above)
 	MPI_Bcast(&count, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	//cout << id_ << " gridcell receive started ( c = " << count <<" )" << endl;
 	//receiving loop
 	for(int i=0; i < count; i++){
 		//receive attributes
@@ -187,6 +191,8 @@ void MpiSlave::activate_pump(){
 		//insert in map
 		grid_protein_list_map.insert( std::pair<float,Protein*>(key, prot) );
 	}
+	//cout << id_ << "gridcell receive complete" << endl;
+	MPI_Barrier(MPI_COMM_WORLD);
 	/************************************************
 	*  STEP 1.C : Receive pumps
 	********************************************** */
@@ -324,7 +330,7 @@ void MpiSlave::activate_pump(){
 	int write;
 	auto itOrga = grid_prot_concentration_change.begin();
 	MPI_Bcast(&write, 1, MPI_INT, 0, MPI_COMM_WORLD);//wait for first signal from master
-	while( write ){
+	while( write == 1 ){
 		if( itOrga != grid_prot_concentration_change.end() ){
 			float delta[2] = {itOrga->first, itOrga->second};
 			MPI_Gather(&delta, 1, dt_cDelta, NULL, 1, dt_cDelta, 0, MPI_COMM_WORLD); 
@@ -336,17 +342,17 @@ void MpiSlave::activate_pump(){
 		}
 		MPI_Bcast(&write, 1, MPI_INT, 0, MPI_COMM_WORLD);//when 0 received, will end reading
 	}
-	
 	/************************************************
 	*  STEP 3.C : Gather gridcell protein deltas
 	********************************************** */
 	auto itGrid = orga_prot_concentration_change.begin();
 	MPI_Bcast(&write, 1, MPI_INT, 0, MPI_COMM_WORLD);//wait for first signal from master, write already initialised
-	while( write ){
+	//cout << "output size for " << id_ << "  " << orga_prot_concentration_change.size() << endl;
+	while( write == 1 ){
 		if( itGrid != orga_prot_concentration_change.end() ){
 			float delta[2] = {itGrid->first, itGrid->second};
 			MPI_Gather(&delta, 1, dt_cDelta, NULL, 1, dt_cDelta, 0, MPI_COMM_WORLD); 
-			itOrga++;
+			itGrid++;
 		}
 		else{
 			float empty[2] = {-1.0, 0.0};//value is position on DNA therefore negative value doesn't exist
