@@ -77,3 +77,37 @@ real	0m26.708s
 user	0m26.413s
 sys	0m0.168s
 	Mesure InPrgm - Time run evolution : 26.3577s
+
+
+
+====================================================
+Note : Common.h ---> 
+	const static int Number_Degradation_Step = 10;
+	const static int Number_Evolution_Step = 2000;
+
+===================================================
+
+SANS MPI 
+
+temps constatés
+t1 = 111.328s
+t2 = 111.33s
+t3 = 114.948s
+t4 = 112.514s
+t5 = 111.022s
+
+AVEC MPI
+
+temps constatés exec a NP = 4 sur IF501-208-10
+t1 = 870.579s
+t2 = 722.446s
+t3 = 774.436s
+t4 = 699.837s
+t5 = 877.398s
+
+temps constatés exec a NP = 2 sur IF501-208-10
+t1 = 242.908s
+t2 = 246.321s
+t3 = 231.546s 
+t4 = 244.648s
+t5 = 237.113s

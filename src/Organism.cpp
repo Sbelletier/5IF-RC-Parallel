@@ -208,64 +208,65 @@ void Organism::compute_next_step() {
 void Organism::activate_pump() {
 	
 
-	/*
-	for (auto it = pump_list_.begin(); it != pump_list_.end(); it++) {
+	
+	//~ for (auto it = pump_list_.begin(); it != pump_list_.end(); it++) {
 		  
 		  
-		if ((*it)->in_out_) {
+		//~ if ((*it)->in_out_) {
 			
-			  for (auto & prot : protein_list_map_) {
-				if ( (*it)->start_range_ >= prot.second->value_ 
-							&& (*it)->end_range_ <= prot.second->value_) 
-				{
-					  float remove = prot.second->concentration_*((*it)->speed_/100);
-					  prot.second->concentration_-=remove;
-					  if ( gridcell_->protein_list_map_.find(prot.second->value_)
-						   == gridcell_->protein_list_map_.end() ) {
-						Protein* prot_n = new Protein(prot.second->type_,
-													prot.second->binding_pattern_,
-													  prot.second->value_);
-						prot_n->concentration_ = remove;
-						gridcell_->protein_list_map_[prot.second->value_] = prot_n;
-					  } 
-					  else 
-					  {
-						gridcell_->protein_list_map_[prot.second->value_]->concentration_ += remove;
-					  }
-				}
-			  }
+			  //~ for (auto & prot : protein_list_map_) {
+				//~ if ( (*it)->start_range_ >= prot.second->value_ 
+							//~ && (*it)->end_range_ <= prot.second->value_) 
+				//~ {
+					  //~ float remove = prot.second->concentration_*((*it)->speed_/100);
+					  //~ prot.second->concentration_-=remove;
+					  //~ if ( gridcell_->protein_list_map_.find(prot.second->value_)
+						   //~ == gridcell_->protein_list_map_.end() ) {
+						//~ Protein* prot_n = new Protein(prot.second->type_,
+													//~ prot.second->binding_pattern_,
+													  //~ prot.second->value_);
+						//~ prot_n->concentration_ = remove;
+						//~ gridcell_->protein_list_map_[prot.second->value_] = prot_n;
+					  //~ } 
+					  //~ else 
+					  //~ {
+						//~ gridcell_->protein_list_map_[prot.second->value_]->concentration_ += remove;
+					  //~ }
+				//~ }
+			  //~ }
 		  
-		} 
-		else {
+		//~ } 
+		//~ else {
 			
-			  for (auto & prot : gridcell_->protein_list_map_) {
+			  //~ for (auto & prot : gridcell_->protein_list_map_) {
 				  
-				if ( (*it)->start_range_ >= prot.first && (*it)->end_range_ <= prot.first) 
-				{
-					  float remove = prot.second->concentration_ * ( (*it)->speed_/100 );
-					  prot.second->concentration_-=remove;
+				//~ if ( (*it)->start_range_ >= prot.first && (*it)->end_range_ <= prot.first) 
+				//~ {
+					  //~ float remove = prot.second->concentration_ * ( (*it)->speed_/100 );
+					  //~ prot.second->concentration_-=remove;
 					  
-					  if ( protein_list_map_.find(prot.first)  == protein_list_map_.end() ) {
-						Protein* prot_n = new Protein(prot.second->type_,
-													  prot.second->binding_pattern_,
-													  prot.second->value_);
-						prot_n->concentration_ = remove;
-						protein_list_map_[prot_n->value_] = prot_n;
-					  } 
-					  else 
-					  {
-						protein_list_map_[prot.first]->concentration_ += remove;
-					  }
-				}
+					  //~ if ( protein_list_map_.find(prot.first)  == protein_list_map_.end() ) {
+						//~ Protein* prot_n = new Protein(prot.second->type_,
+													  //~ prot.second->binding_pattern_,
+													  //~ prot.second->value_);
+						//~ prot_n->concentration_ = remove;
+						//~ protein_list_map_[prot_n->value_] = prot_n;
+					  //~ } 
+					  //~ else 
+					  //~ {
+						//~ protein_list_map_[prot.first]->concentration_ += remove;
+					  //~ }
+				//~ }
 				
-			  }
+			  //~ }
 			  
-		}
+		//~ }
     
-	}
-    */
-    //std::cout << "activate pump" << std::endl;
-	//check for number of available slaves
+	//~ }
+    
+    //~ //std::cout << "activate pump" << std::endl;
+	//~ //check for number of available slaves
+
 	int nb_slave; MPI_Comm_size(MPI_COMM_WORLD, &nb_slave); nb_slave--; //nb_slave = nb_proc - 1;
 	int continue_int = 1;
     int stop_int = 0;
